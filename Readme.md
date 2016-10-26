@@ -12,8 +12,8 @@ We can design that system by getting User agent from user as an asynchronous tas
 For an asynchronous task, we turn to Javascript (in my example, I have used AngularJS). a simple script can be included in webpage to get and parse the user agent, and send data retrieved to backend to store in db.
 
 This figure would resume the process:
-![alt text][logo]
-[logo]: ./images/task_5.png "process"
+![alt text][logo_1]
+[logo_1]: ./images/task_5.png "process"
 
 1. Task 1 : User connects to website 
 2. Task 2 : Adding a Javascript script to webpage that collect User Agent data (and optionally parse it as it can be parse in the backend)
@@ -44,8 +44,8 @@ S3 : to store our data, user agents data or and data required for the system
 EC2 : to deploy our web application and run services. After deploying our app on EC2, our app would handle request from user from its browser, and backend would pass different HTTP request to and from S3 bucket to generate requested data and returned to user. This design is also true for APIs.
 
 This figure would resume the process:
-![alt text][logo]
-[logo]: ./images/task_2.png "process"
+![alt text][logo_2]
+[logo_2]: ./images/task_2.png "process"
 
 1. The user, via his browser, would connect to our web application.
 2- The Application deployed on AWS EC2 (Django, Node ...) would handle different requests from user. If response do not require any data stored in AWS S3, the app would render a response without interacting with S3 Bucket. Otherwise, depending on the app, it generate different request to S3 bucket to add, delete, update data stored and got response.
