@@ -13,7 +13,7 @@ For an asynchronous task, we turn to Javascript (in my example, I have used Angu
 
 This figure would resume the process:
 ![alt text][logo_1]
-[logo_1]: ./images/task_5.png "process"
+[logo_1]: ./images/task_1.png "process"
 
 1. Task 1 : User connects to website 
 2. Task 2 : Adding a Javascript script to webpage that collect User Agent data (and optionally parse it as it can be parse in the backend)
