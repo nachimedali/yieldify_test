@@ -82,25 +82,25 @@ Librairies used are available in file req.txt:
 --- GeoLiteCity.dat : Data required to use with lib pygeoip
 
 #### The script
-1. _max-date()_** : From folders available in data/ in s3, it allows to extract the last datestamp of files uploaded. This method is used to generate the last datestamp of data uploaded to check if new files where uploaded after our final process.
-2. _check-new-files()_** : after generating our max datestamp, it tests if files uploaded in the max folder have been processed or not. In other words, it tests if new files were uploaded in max folder py checking if they are present in processed files list in our log file
-3. _download-file_** : it permits to download a file from s3 bucket repository and store it in local
-4. _decompress-file_** : After downloading a file, this method allow to unzip it
-5. _zip-file_** : Allowing to zip generated data
-6. _validate-row_** : using regex, it permits to filter rows that matches our structure
-7. _timstp_** : convert date rows to datestamp
-8. _getlocation_** : convert ip adress to longitude, latitude, city and country
-9. _parse-user-agent_** : permits to parse user agent row and extract required data
-10. _genobject_** : permits to generate an object for each validated row
-11. _generate_files_** : Uses Spark context to map reduce a file, get required data and generate result file.
+1. **_max-date()_** : From folders available in data/ in s3, it allows to extract the last datestamp of files uploaded. This method is used to generate the last datestamp of data uploaded to check if new files where uploaded after our final process.
+2. **_check-new-files()_** : after generating our max datestamp, it tests if files uploaded in the max folder have been processed or not. In other words, it tests if new files were uploaded in max folder py checking if they are present in processed files list in our log file
+3. **_download-file_** : it permits to download a file from s3 bucket repository and store it in local
+4. **_decompress-file_** : After downloading a file, this method allow to unzip it
+5. **_zip-file_** : Allowing to zip generated data
+6. **_validate-row_** : using regex, it permits to filter rows that matches our structure
+7. **_timstp_** : convert date rows to datestamp
+8. **_getlocation_** : convert ip adress to longitude, latitude, city and country
+9. **_parse-user-agent_** : permits to parse user agent row and extract required data
+10. **_genobject_** : permits to generate an object for each validated row
+11. **_generate_files_** : Uses **Spark** context to **map reduce** a file, get required data and generate result file.
 This picture would simplify the process:
 ![alt text][mapreduce]
 [mapreduce]: ./images/mapreduce.png "mapreduce"
-12. _upload-files_** : permits to upload resulted file to s3 after zipping
-13. _definenewfiles_** : is the main of our project, it permits to verify if new updates are, and to call different task
+12. **_upload-files_** : permits to upload resulted file to s3 after zipping
+13. **_definenewfiles_** : is the main of our project, it permits to verify if new updates are, and to call different task
 
 #### Running 
-To run the script, just install libraries with "sudo pip install req.txt" and run it with "python script.py"
+To run the script, just install libraries with **_"sudo pip install req.txt"_** and run it with **_"python script.py"_**
 
 ### Task_2 
 
