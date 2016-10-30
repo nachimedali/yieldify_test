@@ -100,7 +100,7 @@ This picture would simplify the process:
 13. **_definenewfiles_** : is the main of our project, it permits to verify if new updates are, and to call different task
 
 #### Running 
-To run the script, just install libraries with **_"sudo pip install req.txt"_** and run it with **_"python script.py"_**
+To run the script, just install libraries with **_"sudo pip install -r req.txt"_** and run it with **_"python script.py"_**
 
 ### Task_2 
 
