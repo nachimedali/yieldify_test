@@ -29,11 +29,11 @@ This figure would resume the process:
 - A webservice:
 4. The service/API that would get requests from users and generate responses
 
-I have generated a simple example of this task with only javascript that generates JSON file with data required. Here is the link : [Simple Example to parse user agent data](http://yieldify.alwaysdata.net)
+I have generated a simple example of this task with only javascript that generates JSON file with data required. Here is the link : [Simple Example to parse user agent data](http://yieldify.alwaysdata.net/)
 I have used:
 - AngularJS
 - ua-parser-js lib [Link](https://github.com/faisalman/ua-parser-js)
-
+- It shows results, and it allows also to download JSON file with these details with button "Download JSON"
 ### Physical system Design
 AWS proposes multiple tools for different requirements:
 S3 : is a storage system, a bucket made to store files, but it can not be used to deploy services or API 
@@ -64,4 +64,44 @@ This is the same approach for an API:
 
 ## Part 2 : Implementation
 ### Task 1 : Creating a service
+
+#### Overview
+This task took me around 10 hours to complete. I have used Python 2.7 and Spark (Pyspark) to parallelize reading files and generating required results.
+
+Librairies used are available in file req.txt:
+1. boto : To create connection to S3 bucket and be able to get data or to upload it
+2. pygeoip : With collecting data from ./data/GeoLiteCity.dat, it permits to get location data from ip adress
+3. tinys3 : I was not able to upload data using boto due to some errors from my computer, so I had, to upload data, to use another lib which is tinys3 
+4. user_agents : a lib that permits to parse user agent data and return data required.
+
+#### The structure
+-Main Folder /
+-- script.py : that runs the script
+-- data /
+--- log.json : a json file containing "processed_files" for files processed successfully, "not_processed_files" for failed processed files and "final_date" that contains the last datestamp of files downloaded
+--- GeoLiteCity.dat : Data required to use with lib pygeoip
+
+#### The script
+1. _max-date()_** : From folders available in data/ in s3, it allows to extract the last datestamp of files uploaded. This method is used to generate the last datestamp of data uploaded to check if new files where uploaded after our final process.
+2. _check-new-files()_** : after generating our max datestamp, it tests if files uploaded in the max folder have been processed or not. In other words, it tests if new files were uploaded in max folder py checking if they are present in processed files list in our log file
+3. _download-file_** : it permits to download a file from s3 bucket repository and store it in local
+4. _decompress-file_** : After downloading a file, this method allow to unzip it
+5. _zip-file_** : Allowing to zip generated data
+6. _validate-row_** : using regex, it permits to filter rows that matches our structure
+7. _timstp_** : convert date rows to datestamp
+8. _getlocation_** : convert ip adress to longitude, latitude, city and country
+9. _parse-user-agent_** : permits to parse user agent row and extract required data
+10. _genobject_** : permits to generate an object for each validated row
+11. _generate_files_** : Uses Spark context to map reduce a file, get required data and generate result file.
+This picture would simplify the process:
+![alt text][mapreduce]
+[mapreduce]: ./images/mapreduce.png "mapreduce"
+12. _upload-files_** : permits to upload resulted file to s3 after zipping
+13. _definenewfiles_** : is the main of our project, it permits to verify if new updates are, and to call different task
+
+#### Running 
+To run the script, just install libraries with "sudo pip install req.txt" and run it with "python script.py"
+
+### Task_2 
+
 
