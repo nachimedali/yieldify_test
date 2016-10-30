@@ -102,6 +102,6 @@ This picture would simplify the process:
 #### Running 
 To run the script, just install libraries with **_"sudo pip install -r req.txt"_** and run it with **_"python script.py"_**
 
-### Task_2 
+### Task_2 : **Building an API**
 
 

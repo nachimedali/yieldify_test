@@ -16,8 +16,8 @@ import tinys3
 from boto.s3.connection import S3Connection
 import boto
 
-AWS_KEY = 'AKIAJKCCEQO4CXY6UORQ'
-AWS_SECRET = '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'
+AWS_KEY = 'AWS-KEY'
+AWS_SECRET = 'AWS-Secret'
 aws_connection = S3Connection(AWS_KEY, AWS_SECRET)
 bucket = aws_connection.get_bucket('yi-engineering-recruitment')
 
