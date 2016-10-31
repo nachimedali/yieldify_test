@@ -67,6 +67,8 @@ This is the same approach for an API:
 
 #### Overview
 This task took me around 10 hours to complete. I have used Python 2.7 and Spark (Pyspark) to parallelize reading files and generating required results.
+**Kindly note that you need Spark and Hadoop to be installed, also Python path need to be linked to pyspark**
+
 
 Librairies used are available in file req.txt:
 1. boto : To create connection to S3 bucket and be able to get data or to upload it
@@ -104,4 +106,18 @@ To run the script, just install libraries with **_"sudo pip install -r req.txt"_
 
 ### Task_2 : **Building an API**
 
+I have built a simple API with **tornado** lib and **pyyaml** lib to parse json object. It uses also pyspark. That means, to run the script, you need Hadoop and spark installed and python path linked to python Spark.
 
+**Also, Kindly note** that, as I would upload data in github, I can not add data in data repository for task 2, it uses data generated from task1 and put together without passing to folders. I mean, all  files put together in /data folder.
+
+#### The structure
+- Main folder/
+-- task2.py : script generating the requested api for the 4 first calls. 
+-- data/
+-- < Put here all files together from s3 bucket without any repository >
+
+#### How it works
+After launching the script, open a web navigator and go to :
+localhost:8888/< api here>/?start_date=< start_date >&end_date=< end_date >
+Not passing start_date or end date is possible, and it would take min/max values of datastamp
+passing only one variable is also suppoted by the API

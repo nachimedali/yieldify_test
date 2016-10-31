@@ -16,8 +16,8 @@ import tinys3
 from boto.s3.connection import S3Connection
 import boto
 
-AWS_KEY = 'AWS-KEY'
-AWS_SECRET = 'AWS-Secret'
+AWS_KEY = 'AKIAJKCCEQO4CXY6UORQ'
+AWS_SECRET = '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'
 aws_connection = S3Connection(AWS_KEY, AWS_SECRET)
 bucket = aws_connection.get_bucket('yi-engineering-recruitment')
 
@@ -226,12 +226,11 @@ def define_new_files():
 			logs = json.load(data_file)
 			pf = logs["processed_files"]
 			npf = logs["not_processed_files"]
-			last_date = logs["final_date"]	
+			last_date = logs["final_date"]
+			
 	else:
 		# Initializing data for log file
 		# First testing if directory exists
-		if not os.path.exists('./data'):
-			os.makedirs('./data')
 		pf = []
 		npf = []
 		new_date = 1000000000.0
