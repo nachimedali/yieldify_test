@@ -16,46 +16,31 @@ import tinys3
 from boto.s3.connection import S3Connection
 import boto
 
-AWS_KEY = 'AWS_KEY_HERE'
-AWS_SECRET = 'AWS_SECRET_HERE'
+AWS_KEY = <Please-enter-aws-key-here>
+AWS_SECRET = <Please-enter-aws-secret-here>
 aws_connection = S3Connection(AWS_KEY, AWS_SECRET)
 bucket = aws_connection.get_bucket('yi-engineering-recruitment')
 
-## 
-# The idea is to generate a list of newer files, and call download_file function to downloaditems in this list
-
-#Returning last date when data uploaded
-def max_date():
-	tmstp = 0
-	pattern = re.compile(r"data/[0-9]*/[0-9]*/[0-9]*/")
-	bucket_list = bucket.list(prefix="data/")
-	for item in bucket_list:
-		if pattern.match(item.name) and '.gz' not in item.name:
-			nwr = item.name.split('/')
-			ti = nwr[1]+'-'+nwr[2]+'-'+nwr[3]
-			timestamp = time.mktime(datetime.strptime(ti, "%Y-%m-%d").timetuple())
-			if timestamp > tmstp:
-				tmstp = timestamp
-	return tmstp
 
 # Checking for new files added betweed final date stored dt and max_date new_dt
-def check_new_files(new_dt, dt, pf):
-	new_date = datetime.fromtimestamp(new_dt)
-	# print '%02d,%02d'%(last_date.day,last_date.day)
-	if new_dt > dt:
-		#Getting all files in data bucket
-		bucket_list = bucket.list(prefix="data/")
-		bucket_files = [x.name for x in bucket_list if '.gz' in x.name]
-		##filtring to get only files that are updated after dt
-		new_files = [x for x in bucket_files if dt <= time.mktime(datetime.strptime(x.split('/')[-4]+"-"+x.split('/')[-3]+"-"+x.split('/')[-2], "%Y-%m-%d").timetuple()) <= new_dt]
-		### test if files are in processed list to
-		new_files = [x for x in new_files if x.split('/')[-1] not in pf]
-	elif new_dt == dt:
-		##Get only files in latest repository to check if new files have been uploaded
-		bucket_list = bucket.list(prefix="data/%s/%02d/%02d/" %(new_date.year,new_date.month,new_date.day))
-		bucket_files = [x.name for x in bucket_list if '.gz' in x.name]
-		new_files = [x for x in bucket_files if x.split('/')[-1].replace('.gz','') not in pf]
-	return new_files
+def check_new_files(dt):
+	#Getting all files in data bucket
+	bucket_list = bucket.list(prefix="data/")
+	## filtering files that have been modified after our last date
+	bucket_files = [x.name for x in bucket_list if time.mktime(datetime.strptime(x.last_modified.replace('T',' ').replace('.000Z',''), "%Y-%m-%d %H:%M:%S").timetuple()) > dt]
+	## Getting only gz files
+	bucket_files = [x for x in bucket_files if '.gz' in x]
+
+	return bucket_files
+
+## Launched only if new files exits, this permits to return max datestamp in data repository
+def update_date():
+	bucket_list = bucket.list(prefix="data/")
+
+	#Getting list containing
+	bucket_times = [time.mktime(datetime.strptime(x.last_modified.replace('T',' ').replace('.000Z',''), "%Y-%m-%d %H:%M:%S").timetuple()) for x in bucket_list]
+
+	return max(bucket_times)
 
 #Downloading files
 def download_file(file):
@@ -88,6 +73,7 @@ def decompress_file(fil):
 	out_file.close()
 	os.remove(file_input)
 
+## Zipping generated files
 def zip_file(fil):
 	print "Generating gz file"
 	outfilename = fil + '.gz'
@@ -100,6 +86,7 @@ def zip_file(fil):
 	except Exception,e:
 		raise e
 
+# Validating row before parsing
 def validate_row(row):
 	state = False
 	pattern_0 = re.compile(r"[0-9]{4}-[0-9]{2}-[0-9]{2}")
@@ -122,11 +109,13 @@ def validate_row(row):
 		pass
 	return state
 
+# Returning timestamp from date string
 def timstp(row):
 	myDate = row[0] +' ' + row[1]
 	timestamp = time.mktime(datetime.strptime(myDate, "%Y-%m-%d %H:%M:%S").timetuple())
 	return timestamp
 
+# Parse IP to get location details
 def get_location(row):
 	d = {}
 	gi = pygeoip.GeoIP('./data/GeoLiteCity.dat')
@@ -146,7 +135,7 @@ def get_location(row):
 		d = {"latitude": "Not available", "longitude" : "Not available", "city":"Not available", "country":"Not available"}
 	return d
 		
-	
+## Parsing User agent to get required details
 def parse_user_agent(row):
 	d = {}
 	try:
@@ -159,6 +148,7 @@ def parse_user_agent(row):
 		d = {"mobile": "Not available", "string" : row[5], "os_family" : "Not available", "browser_family" : "Not available"}
 	return d
 
+## generating a dict for every item
 def gen_object(row):
 
 	d = {}
@@ -170,6 +160,7 @@ def gen_object(row):
 	row[0] = d
 	return row[0]
 
+## Handling map reduce for a file
 def generate_files(fil, pf, npf, sc):
 	
 	## Taking a file as an input, we would proceed with mapping and reducing rows in file
@@ -209,15 +200,14 @@ def generate_files(fil, pf, npf, sc):
 		if fil_name not in npf:
 			npf.append(fil_name)
 
-def upload_files(fil,conn):
+def upload_files(fil, conn):
 	print "Start uploading {0}".format(fil)
 	try:
 		f = open(fil,'rb')
-		conn.upload(fil.replace('./','/'),f,'yi-engineering-recruitment')
-		print "File Uploaded Successfully"
+		conn.upload(fil[1:],f,'yi-engineering-recruitment')
+		print "file updated Successfully"
 	except:
-		print "Uploading file failed"
-
+		print "Failed while uploading file {0}".format(fil)
 			
 def define_new_files():
 	#Testing if log file exists to load data, otherwise, create it
@@ -233,25 +223,23 @@ def define_new_files():
 		# First testing if directory exists
 		pf = []
 		npf = []
-		new_date = 1000000000.0
-		log = {"processed_files" : pf, "not_processed_files" : npf, "final_date":new_date}
+		last_date = 1000000000.0
+		log = {"processed_files" : pf, "not_processed_files" : npf, "final_date":last_date}
 		with open("./data/logs.json", "w") as outfile:
-			json.dump(log,outfile,indent=4, sort_keys=True)  
+			json.dump(log,outfile,indent=2, sort_keys=True)  
 		print 'logs file created'
 
 
-	# # Get last timestamp of updating files in S3 bucket
-	new_date = max_date()
-
 	# # Generating a list containing files not processed and deployed after our last update
 	# # The list would be empty if no files were uploaded after our last update
-	new_files = check_new_files(new_date,last_date,pf)
+	new_files = check_new_files(last_date)
 
 	## The length of new_files list reflects if new files have been uploaded or not
+
 	if len(new_files) == 0:
 		print "no new files"
 	else:
-		## Proceed to downloading new files and decompressing and deleting original gz file after decompressing
+		# Proceed to downloading new files and decompressing and deleting original gz file after decompressing
 		i = 1
 		for new_file in new_files:
 			print "Downloading file {0} / {1}...".format(i, len(new_files))
@@ -264,25 +252,42 @@ def define_new_files():
 		print "Files downloaded"
 		##replacing links in new_files list to work locally
 		new_files = [os.path.dirname(os.path.realpath(__file__)) +'/data/'+ x.replace('.gz','.tsv') for x in new_files]
-		print len(new_files)
+
 		print "Starting generating data..."
-		# Starting Spark context
+		#### Starting Spark context
 		sc =SparkContext()
 		for new_file in new_files:
 			print "generating file {0}".format(new_file)
 			generate_files(new_file,pf,npf,sc)
 
 		##uploading generated gz files to s3 
-		new_files = ['/processed/nachi/' + new_file.split('/')[-4] + '/' + new_file.split('/')[-3] + '/' + new_file.split('/')[-2] + '/'+new_file.replace('.tsv','.gz').split('/')[-1] for new_file in new_files]
+		## Reconfiguring files path
+		new_files = ['./processed/nachi/' + new_file.split('/')[-4] + '/' + new_file.split('/')[-3] + '/' + new_file.split('/')[-2] + '/'+new_file.replace('.tsv','.gz').split('/')[-1] for new_file in new_files if new_file.replace('.tsv','.gz').split('/')[-1] not in npf]
+		## Creating a connection with tinys3
 		conn = tinys3.Connection(AWS_KEY,AWS_SECRET,tls=True)
+
 		for new_file in new_files:
 			upload_files(new_file, conn)
 		
+		# Deleting processed local repository
+		choice = raw_input("files were uploaded Successfully, would you like to delete local /proocessed repository (y for yes | n for no)\n")
+		while True:
+			if (choice.lower() == 'n'):
+				break
+			elif (choice.lower() == 'y'):
+				import shutil
+				shutil.rmtree('./processed', ignore_errors=True)
+				print "files deleted\n"
+				break
+			else:
+				print "Wrong answer, please answer with 'n' for no, 'y' for yes\n"
 
+		new_date = update_date()
 		log = {"processed_files" : pf, "not_processed_files" : npf, "final_date":new_date}
 		with open("./data/logs.json", "w") as outfile:
-			json.dump(log,outfile)
+			json.dump(log,outfile,indent=2, sort_keys=True)
 
 
-## Launch the app						
-define_new_files()
+## Launch the app		
+if __name__ == "__main__":				
+	define_new_files()

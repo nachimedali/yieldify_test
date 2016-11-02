@@ -15,7 +15,7 @@ class usersdistinct(tornado.web.RequestHandler):
     def get(self):
     	start_date = self.get_argument('start_date', '1412710000')
     	end_date = self.get_argument('end_date', '1413000000')
-        dire = glob.glob("./data/*.json")
+        dire = glob.glob("./data/*")
         if start_date > end_date:
             response = "Error, you have mentioned wrong dates"
         else:
@@ -44,7 +44,7 @@ class usersunique(tornado.web.RequestHandler):
     def get(self):
         start_date = self.get_argument('start_date', '1412719261')
         end_date = self.get_argument('end_date', '1412794861')
-        dire = glob.glob("./data/*.json")
+        dire = glob.glob("./data/*")
 
         if start_date > end_date:
             response = "Error, you have mentioned wrong dates"
@@ -76,7 +76,7 @@ class domainsdistinct(tornado.web.RequestHandler):
     def get(self):
         start_date = self.get_argument('start_date', '1412719261')
         end_date = self.get_argument('end_date', '1412794861')
-        dire = glob.glob("./data/*.json")
+        dire = glob.glob("./data/*")
         if start_date > end_date:
             response = "Error, you have mentioned wrong dates"
         else:
@@ -104,7 +104,7 @@ class domainsunique(tornado.web.RequestHandler):
     def get(self):
         start_date = self.get_argument('start_date', '1412719261')
         end_date = self.get_argument('end_date', '1412794861')
-        dire = glob.glob("./data/*.json")
+        dire = glob.glob("./data/*")
         dire = [x for x in dire if int(start_date) <= int(x.replace('.tsv','').split('-')[-1]) <= int(end_date) ]
         
         if start_date > end_date:
@@ -137,7 +137,7 @@ class statsbrowser(tornado.web.RequestHandler):
     def get(self):
         start_date = self.get_argument('start_date', '0')
         end_date = self.get_argument('end_date', '1500000000')
-        dire = glob.glob("./data/*.json")
+        dire = glob.glob("./data/*")
 
         if start_date > end_date:
             response = "Error, you have mentioned wrong dates"
@@ -175,7 +175,7 @@ class statsos(tornado.web.RequestHandler):
     def get(self):
         start_date = self.get_argument('start_date', '0')
         end_date = self.get_argument('end_date', '1500000000')
-        dire = glob.glob("./data/*.json")
+        dire = glob.glob("./data/*")
 
         if start_date > end_date:
             response = "Error, you have mentioned wrong dates"
@@ -213,7 +213,7 @@ class statsdevice(tornado.web.RequestHandler):
     def get(self):
         start_date = self.get_argument('start_date', '0')
         end_date = self.get_argument('end_date', '1500000000')
-        dire = glob.glob("./data/*.json")
+        dire = glob.glob("./data/*")
 
         if start_date > end_date:
             response = "Error, you have mentioned wrong dates"
@@ -265,5 +265,7 @@ application = tornado.web.Application([
 ])
  
 if __name__ == "__main__":
+    ## Starting spark context
+
     application.listen(8888)
     tornado.ioloop.IOLoop.instance().start()
