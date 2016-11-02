@@ -13,9 +13,11 @@ from user_agents import parse
 
 class usersdistinct(tornado.web.RequestHandler):
     def get(self):
-    	start_date = self.get_argument('start_date', '1412710000')
-    	end_date = self.get_argument('end_date', '1413000000')
+    	start_date = self.get_argument('start_date', '1000000000')
+    	end_date = self.get_argument('end_date', '1500000000')
         dire = glob.glob("./data/*")
+        ## Filtering at first files in corresponding timestamp
+        dire = [x for x in dire if int(start_date)-1 <= int(x.split('-')[-1]) <= int(end_date)+1 ]
         if start_date > end_date:
             response = "Error, you have mentioned wrong dates"
         else:
@@ -25,7 +27,7 @@ class usersdistinct(tornado.web.RequestHandler):
                 
                 result = sc.textFile(','.join(dire)) \
                 .map(lambda line: line.split("\n")) \
-                .map(lambda line: line[0].replace('"','')) \
+                .map(lambda line: line[0].replace("'",'')) \
                 .map(lambda line: yaml.load(line))\
                 .filter(lambda x: int(start_date) <= x["timestamp"] <= int(end_date)) \
                 .map(lambda x: x['user_id']).distinct().count()
@@ -42,9 +44,11 @@ class usersdistinct(tornado.web.RequestHandler):
 
 class usersunique(tornado.web.RequestHandler):
     def get(self):
-        start_date = self.get_argument('start_date', '1412719261')
-        end_date = self.get_argument('end_date', '1412794861')
+        start_date = self.get_argument('start_date', '1000000000')
+        end_date = self.get_argument('end_date', '1500000000')
         dire = glob.glob("./data/*")
+        ## Filtering at first files in corresponding timestamp
+        dire = [x for x in dire if int(start_date)-1 <= int(x.split('-')[-1]) <= int(end_date)+1 ]
 
         if start_date > end_date:
             response = "Error, you have mentioned wrong dates"
@@ -55,7 +59,7 @@ class usersunique(tornado.web.RequestHandler):
                 
                 result = sc.textFile(','.join(dire)) \
                 .map(lambda line: line.split("\n")) \
-                .map(lambda line: line[0].replace('"','')) \
+                .map(lambda line: line[0].replace("'",'')) \
                 .map(lambda line: yaml.load(line))\
                 .filter(lambda x: int(start_date) <= x["timestamp"] <= int(end_date)) \
                 .map(lambda x: x['user_id']) \
@@ -74,9 +78,11 @@ class usersunique(tornado.web.RequestHandler):
 
 class domainsdistinct(tornado.web.RequestHandler):
     def get(self):
-        start_date = self.get_argument('start_date', '1412719261')
-        end_date = self.get_argument('end_date', '1412794861')
+        start_date = self.get_argument('start_date', '1000000000')
+        end_date = self.get_argument('end_date', '1500000000')
         dire = glob.glob("./data/*")
+        ## Filtering at first files in corresponding timestamp
+        dire = [x for x in dire if int(start_date)-1 <= int(x.split('-')[-1]) <= int(end_date)+1 ]
         if start_date > end_date:
             response = "Error, you have mentioned wrong dates"
         else:
@@ -86,7 +92,7 @@ class domainsdistinct(tornado.web.RequestHandler):
                 
                 result = sc.textFile(','.join(dire)) \
                 .map(lambda line: line.split("\n")) \
-                .map(lambda line: line[0].replace('"','')) \
+                .map(lambda line: line[0].replace("'",'')) \
                 .map(lambda line: yaml.load(line))\
                 .filter(lambda x: int(start_date) <= x["timestamp"] <= int(end_date)) \
                 .map(lambda x: x["url"].split('/')[-2]).distinct().count()
@@ -102,10 +108,11 @@ class domainsdistinct(tornado.web.RequestHandler):
 
 class domainsunique(tornado.web.RequestHandler):
     def get(self):
-        start_date = self.get_argument('start_date', '1412719261')
-        end_date = self.get_argument('end_date', '1412794861')
+        start_date = self.get_argument('start_date', '1000000000')
+        end_date = self.get_argument('end_date', '1500000000')
         dire = glob.glob("./data/*")
-        dire = [x for x in dire if int(start_date) <= int(x.replace('.tsv','').split('-')[-1]) <= int(end_date) ]
+        ## Filtering at first files in corresponding timestamp
+        dire = [x for x in dire if int(start_date)-1 <= int(x.split('-')[-1]) <= int(end_date)+1 ]
         
         if start_date > end_date:
             response = "Error, you have mentioned wrong dates"
@@ -116,7 +123,7 @@ class domainsunique(tornado.web.RequestHandler):
                 
                 result = sc.textFile(','.join(dire)) \
                 .map(lambda line: line.split("\n")) \
-                .map(lambda line: line[0].replace('"','')) \
+                .map(lambda line: line[0].replace("'",'')) \
                 .map(lambda line: yaml.load(line))\
                 .filter(lambda x: int(start_date) <= x["timestamp"] <= int(end_date)) \
                 .map(lambda x: x["url"].split('/')[-2])\
@@ -135,9 +142,11 @@ class domainsunique(tornado.web.RequestHandler):
 
 class statsbrowser(tornado.web.RequestHandler):
     def get(self):
-        start_date = self.get_argument('start_date', '0')
+        start_date = self.get_argument('start_date', '1000000000')
         end_date = self.get_argument('end_date', '1500000000')
         dire = glob.glob("./data/*")
+        ## Filtering at first files in corresponding timestamp
+        dire = [x for x in dire if int(start_date)-1 <= int(x.split('-')[-1]) <= int(end_date)+1 ]
 
         if start_date > end_date:
             response = "Error, you have mentioned wrong dates"
@@ -148,7 +157,7 @@ class statsbrowser(tornado.web.RequestHandler):
                 
                 result = sc.textFile(','.join(dire)) \
                 .map(lambda line: line.split("\n")) \
-                .map(lambda line: line[0].replace('"','')) \
+                .map(lambda line: line[0].replace("'",'')) \
                 .map(lambda line: yaml.load(line))\
                 .filter(lambda x: int(start_date) <= x["timestamp"] <= int(end_date)) \
                 .map(lambda x: x["user_agent"]["browser_family"])\
@@ -176,6 +185,8 @@ class statsos(tornado.web.RequestHandler):
         start_date = self.get_argument('start_date', '0')
         end_date = self.get_argument('end_date', '1500000000')
         dire = glob.glob("./data/*")
+        ## Filtering at first files in corresponding timestamp
+        dire = [x for x in dire if int(start_date)-1 <= int(x.split('-')[-1]) <= int(end_date)+1 ]
 
         if start_date > end_date:
             response = "Error, you have mentioned wrong dates"
@@ -186,7 +197,7 @@ class statsos(tornado.web.RequestHandler):
                 
                 result = sc.textFile(','.join(dire)) \
                 .map(lambda line: line.split("\n")) \
-                .map(lambda line: line[0].replace('"','')) \
+                .map(lambda line: line[0].replace("'",'')) \
                 .map(lambda line: yaml.load(line))\
                 .filter(lambda x: int(start_date) <= x["timestamp"] <= int(end_date)) \
                 .map(lambda x: x["user_agent"]["os_family"])\
@@ -214,6 +225,9 @@ class statsdevice(tornado.web.RequestHandler):
         start_date = self.get_argument('start_date', '0')
         end_date = self.get_argument('end_date', '1500000000')
         dire = glob.glob("./data/*")
+        ## Filtering at first files in corresponding timestamp
+        dire = [x for x in dire if int(start_date)-1 <= int(x.split('-')[-1]) <= int(end_date)+1 ]
+
 
         if start_date > end_date:
             response = "Error, you have mentioned wrong dates"
@@ -224,7 +238,7 @@ class statsdevice(tornado.web.RequestHandler):
                 
                 result = sc.textFile(','.join(dire)) \
                 .map(lambda line: line.split("\n")) \
-                .map(lambda line: line[0].replace('"','')) \
+                .map(lambda line: line[0].replace("'",'')) \
                 .map(lambda line: yaml.load(line))\
                 .filter(lambda x: int(start_date) <= x["timestamp"] <= int(end_date)) \
                 .map(lambda x: x["user_agent"]["mobile"])\
